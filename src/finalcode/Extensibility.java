@@ -13,7 +13,7 @@ class Print2 implements IntAlg<String> {
 //END_PRINT_BASE
 
 //BEGIN_EXTENSIBILITY_VAR
-interface IntBoolAlg<A> extends IntAlg<A> {
+interface IntBoolAlg<A> {
 	A bool(Boolean b);
 	A iff(A e1, A e2, A e3);
 }
@@ -47,14 +47,14 @@ class Iff implements Exp {
 
 //BEGIN_NEW_VARIANTS
 /* Extended Expression Factory */
-class IntBoolFactory extends IntFactory implements IntBoolAlg<Exp> {
+class IntBoolFactory implements IntBoolAlg<Exp> {
 	public Exp bool(Boolean b) {return new Bool(b);}
 
 	public Exp iff(Exp e1, Exp e2, Exp e3) {return new Iff(e1,e2,e3);}
 }
 
 /* Extended Retroactive Implementation for Printing */
-class IntBoolPrint extends IntPrint implements IntBoolAlg<IPrint> {
+class IntBoolPrint implements IntBoolAlg<IPrint> {
 	public IPrint bool(final Boolean b) {
 		return new IPrint() {
 			public String print() {return new Boolean(b).toString();} 
@@ -76,16 +76,17 @@ class Test {
 		return v.add(v.lit(3), v.lit(4));
 	}
 	
-	<A> A exp2(IntBoolAlg<A> v) {
-		return v.iff(v.bool(false),v.add(v.lit(3), v.lit(4)),v.lit(0));
+	<A> A exp2(IntAlg<A> v, IntBoolAlg<A> v2) {
+		return v2.iff(v2.bool(false),v.add(v.lit(3), v.lit(4)),v.lit(0));
 	}
-	
+
 	void test() {
 		IntPrint p = new IntPrint();
 		IntBoolPrint p2 = new IntBoolPrint();
-		
-		exp(p2).print();
-		exp2(p).print(); // does not type-check
+
+		exp(p).print();
+		exp2(p, p2).print();
+//		exp2(p2).print(); // does not type-check
 	}
 	
 }

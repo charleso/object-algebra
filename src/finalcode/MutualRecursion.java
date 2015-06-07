@@ -3,7 +3,7 @@ package finalcode;
 import java.util.HashMap;
 
 //BEGIN_MUTUAL_STMT
-interface StmtAlg<E, S> extends IntBoolAlg<E> {
+interface StmtAlg<E, S> {
 	E var(String x);
 	E assign(String x, E e);
 	S expr(E e);
@@ -15,7 +15,7 @@ interface StmtAlg<E, S> extends IntBoolAlg<E> {
 interface Stmt { 
 	void eval(); 
 }
-class StmtFactory extends IntBoolFactory implements StmtAlg<Exp, Stmt> {
+class StmtFactory implements StmtAlg<Exp, Stmt> {
 	HashMap<String, Value> map = new HashMap<String, Value>();
 
 	public Exp var(final String x) {
@@ -48,12 +48,12 @@ class StmtFactory extends IntBoolFactory implements StmtAlg<Exp, Stmt> {
 //END_EVAL_STMT
 
 class TestMutual {
-	<E, S> E exp(StmtAlg<E, S> v) {
-		return v.assign("x", v.add(v.lit(3), v.lit(4)));
+	<E, S> E exp(IntAlg<E> v, StmtAlg<E, S> v2) {
+		return v2.assign("x", v.add(v.lit(3), v.lit(4)));
 	}
 	
-	<E, S> S stmt(StmtAlg<E, S> v) {
-		return v.comp(v.expr(exp(v)), v.expr(v.var("x")));
+	<E, S> S stmt(IntAlg<E> v, StmtAlg<E, S> v2) {
+		return v2.comp(v2.expr(exp(v, v2)), v2.expr(v2.var("x")));
 	} 
 	
 	// bad
@@ -64,9 +64,10 @@ class TestMutual {
 	*/
 	
 	void test() {
+		IntFactory intF = new IntFactory();
 		StmtFactory factory = new StmtFactory();
-		
-		exp(factory).eval();
-		stmt(factory).eval();
+
+		exp(intF, factory).eval();
+		stmt(intF, factory).eval();
 	}
 } 
